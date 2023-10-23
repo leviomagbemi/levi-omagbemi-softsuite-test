@@ -25,8 +25,8 @@ export default {
         const messages = {
           required: `${ctx.field} is required`,
           email: `Enter a valid email`,
-          max: `${ctx.field} too long`,
-          min: `${ctx.field} too short`,
+          max: `${ctx.field} should be miximum of 20 characters`,
+          min: `${ctx.field} should be minimum of 2 characters`,
           regex: `${ctx.field} must contain letter, number and symbol`
         };
 
