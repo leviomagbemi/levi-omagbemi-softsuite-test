@@ -1,0 +1,14 @@
+:root {
+  /*Base colors*/
+  --primary: #2d416f;
+  --primary-40: #818da9;
+  --primary-60: #abb3c5;
+  --secondary: #4baa79;
+  --white: #fff;
+  --light: #f4f6f8;
+}
+
+@font-face {
+  font-family: 'Questrial';
+  src: url(FONT_FILE_NAME.woff2) format('woff2');
+}

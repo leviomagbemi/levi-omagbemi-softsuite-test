@@ -1,0 +1,15 @@
+@import './base.css';
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: 'Questrial';
+  outline: none;
+  list-style: none;
+  text-decoration: none;
+}
+
+body {
+  background-color: #f4f6f8;
+}
