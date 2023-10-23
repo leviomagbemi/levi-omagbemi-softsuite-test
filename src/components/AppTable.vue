@@ -42,16 +42,25 @@
       </template>
 
       <template #item-action="item">
-        <div id="actionModal">
-          <ul id="modal">
-            <li><i class="fas fa-eye"></i> View Element Link</li>
-            <hr />
-            <li><i class="fas fa-edit"></i> Edit Element Link</li>
-            <hr />
-            <li id="delete"><i class="fas fa-trash"></i> Delete Element Link</li>
-          </ul>
-          <i id="action" @click.prevent="toggleModal(item)" class="fas fa-ellipsis-h"></i>
-        </div>
+        <v-menu open-on-click location="top">
+          <template v-slot:activator="{ props }">
+            <i v-bind="props" id="action" class="fas fa-ellipsis-h"></i>
+          </template>
+
+          <v-list>
+            <v-list-item
+              @click.prevent=""
+              style="cursor: pointer"
+              v-for="(list, index) in lists"
+              :key="index"
+            >
+              <v-list-item-title :style="!list.id ? { color: '#2d416f' } : { color: '#e05453' }"
+                ><i :class="list.icon"></i> {{ list.title }}</v-list-item-title
+              >
+              <hr />
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </template>
     </EasyDataTable>
   </div>
@@ -64,6 +73,11 @@ const color = '#2d416f';
 const text = '#fff';
 const headers = ref([]);
 const items = ref([]);
+const lists = ref([
+  { title: 'View Element Link', icon: 'fas fa-eye' },
+  { title: 'View Element Link', icon: 'fas fa-edit' },
+  { title: 'View Element Link', icon: 'fas fa-trash', id: 'delete' }
+]);
 
 onBeforeMount(() => {
   headers.value = [
@@ -84,8 +98,7 @@ onBeforeMount(() => {
       status: 'Active',
       dateTime: '14-02-2022||09:30 AM',
       modifiedBy: 'Samson Ayonrinde',
-      action: '...',
-      showModal: true
+      action: '...'
     },
     {
       name: '13 Month Allowance',
@@ -94,15 +107,13 @@ onBeforeMount(() => {
       status: 'Inactive',
       dateTime: '14-02-2022||09:30 AM',
       modifiedBy: 'Samson Ayonrinde',
-      action: '...',
-      showModal: false
+      action: '...'
     }
   ];
 });
 
-function toggleModal(item) {
-  item.showModal = !item.showModal;
-  console.log(item);
+function removeHover(e) {
+  e.target.style.backgroundColor = 'transparent';
 }
 </script>
 
@@ -130,39 +141,5 @@ function toggleModal(item) {
 
 th {
   font-weight: 400;
-}
-
-#actionModal {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  gap: 8px;
-
-  margin-bottom: 5px;
-}
-#modal {
-  background-color: var(--white);
-  box-shadow: 2px 2px 25px 2px rgba($color: #000000, $alpha: 0.2);
-  padding: 4px;
-  width: 125px;
-  border-radius: 4px;
-  position: absolute;
-  right: 0;
-  bottom: 70px;
-  z-index: 1000;
-
-  li {
-    padding: 4px;
-    font-size: 10px;
-  }
-
-  li:not(#delete) {
-    color: var(--primary);
-  }
-
-  #delete {
-    color: #e05453;
-  }
 }
 </style>

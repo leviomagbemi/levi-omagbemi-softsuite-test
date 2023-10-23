@@ -46,6 +46,7 @@ const elementStore = useElementStore();
 </script>
 
 <style lang="scss" scoped>
+@import 'vuetify/styles';
 nav {
   ul {
     display: flex;

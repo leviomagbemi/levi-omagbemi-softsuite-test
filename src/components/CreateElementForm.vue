@@ -3,7 +3,11 @@
     <div>
       <h3>Create Element</h3>
     </div>
-    <VeeForm :validation-schema="schema">
+    <!--details-->
+    <div>
+      <div id="bar"></div>
+    </div>
+    <VeeForm @submit="createElement" :validation-schema="schema">
       <!--Name and classification-->
       <div class="container">
         <div>
@@ -118,6 +122,36 @@ const schema = {
   description: 'required',
   'reporting-name': 'required'
 };
+
+async function createElement(values) {
+  const id = Math.floor(Math.random() * 100 + 1);
+
+  const data = await fetch('https://650af6bedfd73d1fab094cf7.mockapi.io/elements', {
+    method: 'POST',
+    body: JSON.stringify({
+      name: values.name,
+      description: values.description,
+      payRunId: 0,
+      payRunValueId: 0,
+      classificationId: 0,
+      classificationValueId: 0,
+      categoryId: 0,
+      categoryValueId: 0,
+      reportingName: values.reportingName,
+      processingType: 'Open',
+      status: 'Active',
+      prorate: 'No',
+      effectiveStartDate: new Date().toLocaleDateString(),
+      effectiveEndDate: null,
+      selectedMonths: ['January'],
+      payFrequency: values.payrun,
+      modifiedBy: 'Levi Omagbemi',
+      id
+    })
+  });
+
+  const res = await data.json();
+}
 </script>
 
 <style lang="scss" scoped>
@@ -148,6 +182,8 @@ const schema = {
     resize: none;
     width: 100%;
     padding: 16px;
+    border: 1px solid #000;
+    border-radius: 4px;
   }
 
   .container {
@@ -161,6 +197,8 @@ const schema = {
       select {
         padding: 8px 16px;
         width: 100%;
+        border: 1px solid #000;
+        border-radius: 4px;
       }
     }
   }
