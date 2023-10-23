@@ -15,7 +15,7 @@
       </ul>
     </nav>
     <main>
-      <section>
+      <section style="position: relative">
         <h4>Elements</h4>
         <!--component header-->
         <div id="header-container">
@@ -30,6 +30,8 @@
             </button>
           </div>
         </div>
+
+        <AppTable />
       </section>
     </main>
   </section>
@@ -38,15 +40,12 @@
 <script setup>
 import SearchBar from '@/components/SearchBar.vue';
 import { useElementStore } from '@/stores/element.js';
+import AppTable from '@/components/AppTable.vue';
 
 const elementStore = useElementStore();
 </script>
 
 <style lang="scss" scoped>
-.active {
-  color: var(--primary);
-}
-
 nav {
   ul {
     display: flex;
@@ -72,6 +71,7 @@ main {
     padding: 16px;
     background-color: var(--white);
     border-radius: 6px;
+    position: relative;
 
     h4 {
       color: var(--primary);
