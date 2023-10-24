@@ -10,6 +10,14 @@
   text-decoration: none;
 }
 
+*:disabled {
+  background-color: #9cc2ae;
+}
+
+input[type='radio'] {
+  color: red;
+}
+
 body {
   background-color: #f4f6f8;
 }
