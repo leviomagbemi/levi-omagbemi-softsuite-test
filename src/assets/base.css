@@ -2,8 +2,10 @@
   /*Base colors*/
   --primary: #2d416f;
   --primary-40: #818da9;
+  --primary-20: #57678c;
   --primary-60: #abb3c5;
   --secondary: #4baa79;
+  --green-40: #93ccaf;
   --white: #fff;
   --light: #f4f6f8;
 }

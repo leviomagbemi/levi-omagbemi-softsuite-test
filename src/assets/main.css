@@ -11,11 +11,7 @@
 }
 
 *:disabled {
-  background-color: #9cc2ae;
-}
-
-input[type='radio'] {
-  color: red;
+  background-color: #badcca !important;
 }
 
 body {

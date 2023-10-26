@@ -25,7 +25,7 @@
           </div>
 
           <div>
-            <button id="create-element-btn" @click.prevent="elementStore.createElement = true">
+            <button id="create-element-btn" @click.prevent="elementStore.element = true">
               Create Element <i class="fas fa-plus"></i>
             </button>
           </div>
@@ -39,14 +39,14 @@
 
 <script setup>
 import SearchBar from '@/components/SearchBar.vue';
-import { useElementStore } from '@/stores/element.js';
 import AppTable from '@/components/AppTable.vue';
+
+import { useElementStore } from '@/stores/element.js';
 
 const elementStore = useElementStore();
 </script>
 
 <style lang="scss" scoped>
-
 nav {
   ul {
     display: flex;

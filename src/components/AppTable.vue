@@ -98,7 +98,8 @@ onBeforeMount(() => {
       status: 'Active',
       dateTime: '14-02-2022||09:30 AM',
       modifiedBy: 'Samson Ayonrinde',
-      action: '...'
+      action: '...',
+      ddd: 'kkkkk'
     },
     {
       name: '13 Month Allowance',
@@ -111,10 +112,6 @@ onBeforeMount(() => {
     }
   ];
 });
-
-function removeHover(e) {
-  e.target.style.backgroundColor = 'transparent';
-}
 </script>
 
 <style lang="scss" scoped>

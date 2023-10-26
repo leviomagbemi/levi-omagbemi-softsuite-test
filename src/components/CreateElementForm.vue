@@ -1,5 +1,5 @@
 <template>
-  <div id="main-container" v-if="elementStore.createElement">
+  <div id="main-container" v-if="elementStore.element && completion !== 3">
     <div>
       <h3>Create Element</h3>
     </div>
@@ -22,9 +22,9 @@
         </div>
       </div>
     </div>
-    <VeeForm @submit="createElement" :validation-schema="schema" id="form">
+    <VeeForm :validation-schema="schema" id="form" @submit="createElement">
       <!--step one fields-->
-      <div v-if="completion === 1">
+      <div v-show="completion === 1">
         <!--Name and classification-->
         <div class="container">
           <div>
@@ -106,7 +106,7 @@
       </div>
 
       <!--step two fields-->
-      <div v-if="completion === 2">
+      <div v-show="completion === 2">
         <!--Start Date and End Date-->
         <div class="container">
           <div>
@@ -144,12 +144,28 @@
             <legend>Pay Frequency</legend>
             <div id="pay-frequency-container">
               <div class="radio-container">
-                <VeeField name="pay-frequency" id="open" type="radio" value="Monthly" checked />
+                <!--Removing pay months from validation schema id Monthly is selected-->
+                <VeeField
+                  name="pay-frequency"
+                  id="open"
+                  type="radio"
+                  value="Monthly"
+                  v-model="payFrequency"
+                  @click="delete schema['pay-months'], (payMonths = '')"
+                />
                 <label for="monthly">Monthly</label>
               </div>
 
               <div class="radio-container">
-                <VeeField name="pay-frequency" id="closed" type="radio" value="Selected Months" />
+                <!--Add pay months to validation schema id Monthly is selected-->
+                <VeeField
+                  name="pay-frequency"
+                  id="closed"
+                  type="radio"
+                  value="Selected Months"
+                  v-model="payFrequency"
+                  @click="schema['pay-months'] = 'required'"
+                />
                 <label for="selected-months">Selected Months</label>
               </div>
             </div>
@@ -161,7 +177,12 @@
         <div id="pay-months-container">
           <label for="pay-months">Selected Pay Months</label>
           <VeeField v-slot="{ field }" v-model="payMonths" name="pay-months">
-            <select v-bind="field" name="pay-months" id="pay-months">
+            <select
+              v-bind="field"
+              name="pay-months"
+              id="pay-months"
+              :disabled="payFrequency === 'Monthly' ? true : false"
+            >
               <option value="">Select</option>
               <option value="January">January</option>
               <option value="February">February</option>
@@ -177,7 +198,7 @@
               <option value="December">December</option>
             </select>
           </VeeField>
-          <ErrorMessage name="pay-months" id="error" />
+          <ErrorMessage v-if="payFrequency === 'Selected Months'" name="pay-months" id="error" />
         </div>
 
         <!--prorate and status-->
@@ -203,11 +224,10 @@
             <div id="status">
               <div class="status-container">
                 <VeeField v-slot="field" name="status" v-model="status">
-                  <i
-                    v-bind="field"
-                    :class="`fas fa-toggle-${status ? 'on' : 'off'} fa-lg`"
-                    @click="status = !status"
-                  ></i>
+                  <label class="switch">
+                    <input type="checkbox" v-bind="field" checked />
+                    <span class="slider round" @click="updateStatus"></span>
+                  </label>
                 </VeeField>
                 <label for="status"> Active</label>
               </div>
@@ -237,12 +257,23 @@
       </div>
     </VeeForm>
   </div>
+
+  <!--alert-->
+  <div id="completion-alert" v-if="completion === 3">
+    <i class="fas fa-check"></i>
+
+    <p>Element has been created successfully</p>
+
+    <button @click.prevent="completion = 1">Close to continue</button>
+  </div>
   <!--overlay-->
-  <div id="overlay" v-if="elementStore.createElement" @click.prevent="cancelSubmission"></div>
+  <div id="overlay" v-if="elementStore.element" @click.prevent="cancelSubmission"></div>
+
+  <div id="overlay" v-if="completion === 3" @click.prevent="completion = 1"></div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, reactive } from 'vue';
 import { useElementStore } from '@/stores/element.js';
 
 const elementStore = useElementStore();
@@ -255,7 +286,9 @@ const reportingName = ref('');
 const payMonths = ref('');
 const progress = ref(25);
 const completion = ref(1);
-const status = ref(false);
+const payFrequency = ref('');
+const status = ref('Active');
+const checkStatus = ref(true);
 
 const checkFields = computed(() => {
   return name.value === '' ||
@@ -268,8 +301,8 @@ const checkFields = computed(() => {
     : false;
 });
 
-const schema = {
-  name: 'required|min:2|max:20',
+const schema = reactive({
+  name: 'required|min:2',
   classification: 'required',
   category: 'required',
   payrun: 'required',
@@ -279,45 +312,38 @@ const schema = {
   'end-date': 'required',
   'processing-type': 'required',
   'pay-frequency': 'required',
-  'pay-months': 'required',
   prorate: 'required'
-};
+});
 
 async function createElement(values) {
-  const id = Math.floor(Math.random() * 100 + 1);
+  await elementStore.createElement(values, completion);
 
-  const data = await fetch('https://650af6bedfd73d1fab094cf7.mockapi.io/elements', {
-    method: 'POST',
-    body: JSON.stringify({
-      name: values.name,
-      description: values.description,
-      payRunId: 0,
-      payRunValueId: 0,
-      classificationId: 0,
-      classificationValueId: 0,
-      categoryId: 0,
-      categoryValueId: 0,
-      reportingName: values.reportingName,
-      processingType: 'Open',
-      status: 'Active',
-      prorate: 'No',
-      effectiveStartDate: new Date().toLocaleDateString(),
-      effectiveEndDate: null,
-      selectedMonths: ['January'],
-      payFrequency: values.payrun,
-      modifiedBy: 'Levi Omagbemi',
-      id
-    })
-  });
-
-  const res = await data.json();
+  //reset form
+  name.value = '';
+  classification.value = '';
+  category.value = '';
+  payrun.value = '';
+  description.value = '';
+  reportingName.value = '';
+  payMonths.value = '';
+  progress.value = '';
+  payFrequency.value = '';
 }
 
+//Error handling for form
+// function onInvalidSubmit({ values, errors, results }) {
+//   console.log(values);
+//   console.log(errors);
+//   console.log(results);
+// }
+
+//update completion progress when back button is clicked
 function updateCompletion() {
   progress.value += 50;
   completion.value++;
 }
 
+// cancel submission when text contet is "Cancel"
 function cancelSubmission(e) {
   if (e.target.textContent === 'Back') {
     completion.value -= 1;
@@ -325,7 +351,17 @@ function cancelSubmission(e) {
   } else {
     progress.value = 25;
     completion.value = 1;
-    elementStore.createElement = false;
+    elementStore.element = false;
+  }
+}
+
+function updateStatus() {
+  checkStatus.value = !checkStatus.value;
+
+  if (checkStatus.value) {
+    status.value = 'Active';
+  } else {
+    status.value = 'Inactive';
   }
 }
 </script>
@@ -349,7 +385,7 @@ function cancelSubmission(e) {
 
   label:not([for='open']):not([for='closed']):not([for='monthly']):not([for='selected-months']):not(
       [for='yes']
-    ):not([for='no']),
+    ):not([for='no']):not([for='status']):not(.switch),
   legend {
     font: 400 14px auto;
     color: var(--primary-40);
@@ -465,13 +501,12 @@ function cancelSubmission(e) {
 }
 
 #error {
-  color: red;
+  color: #ff0000;
 }
 
 #processing-type-container,
 #pay-frequency-container,
-#prorate,
-#status {
+#prorate {
   display: flex;
   gap: 40px;
   border: solid 1px #000;
@@ -484,16 +519,15 @@ function cancelSubmission(e) {
     align-items: center;
   }
 }
-
+#status {
+  border: solid 1px #000;
+  border-radius: 4px;
+  padding: 8px 16px;
+}
 .status-container {
   display: flex;
   gap: 8px;
   align-items: center;
-
-  i {
-    color: var(--secondary);
-    font-size: 24px;
-  }
 }
 
 #pay-months-container {
@@ -504,6 +538,111 @@ function cancelSubmission(e) {
     border: 1px solid #000;
     border-radius: 4px;
     background-color: var(--light);
+  }
+}
+input[type='radio'] {
+  accent-color: var(--secondary);
+}
+
+/* switch */
+
+.switch {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 46px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #e05453;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: '';
+  height: 12px;
+  width: 12px;
+  left: 4px;
+  bottom: 4px;
+  background-color: #fff;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: var(--secondary);
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px var(--secondary);
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+#completion-alert {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -80%);
+  width: 434px;
+  background-color: var(--white);
+  padding: 32px;
+  border-radius: 6px;
+  text-align: center;
+  z-index: 10;
+
+  i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 68px;
+    height: 68px;
+    background-color: var(--green-40);
+    color: var(--secondary);
+    font-size: 32px;
+    border-radius: 50%;
+  }
+
+  p {
+    margin: 24px 0;
+    font-size: 24px;
+    color: var(--primary-20);
+  }
+
+  button {
+    background-color: var(--secondary);
+    width: 100%;
+    padding: 16px 0;
+    border-radius: 6px;
+    color: #fff;
   }
 }
 </style>
