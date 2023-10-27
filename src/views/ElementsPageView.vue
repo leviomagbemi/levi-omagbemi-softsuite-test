@@ -15,7 +15,7 @@
       </ul>
     </nav>
     <main>
-      <section style="position: relative">
+      <section>
         <h4>Elements</h4>
         <!--component header-->
         <div id="header-container">
@@ -25,7 +25,7 @@
           </div>
 
           <div>
-            <button id="create-element-btn" @click.prevent="elementStore.element = true">
+            <button id="create-element-btn" @click.prevent="elementStore.create = true">
               Create Element <i class="fas fa-plus"></i>
             </button>
           </div>

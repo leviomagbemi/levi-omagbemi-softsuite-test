@@ -1,5 +1,5 @@
 <template>
-  <div id="main-container" v-if="elementStore.element && completion !== 3">
+  <div id="main-container" v-if="elementStore.create && completion !== 3">
     <div>
       <h3>Create Element</h3>
     </div>
@@ -267,7 +267,7 @@
     <button @click.prevent="completion = 1">Close to continue</button>
   </div>
   <!--overlay-->
-  <div id="overlay" v-if="elementStore.element" @click.prevent="cancelSubmission"></div>
+  <div id="overlay" v-if="elementStore.create" @click.prevent="cancelSubmission"></div>
 
   <div id="overlay" v-if="completion === 3" @click.prevent="completion = 1"></div>
 </template>
@@ -328,6 +328,8 @@ async function createElement(values) {
   payMonths.value = '';
   progress.value = '';
   payFrequency.value = '';
+  status.value = 'Active';
+  checkStatus.value = true;
 }
 
 //Error handling for form
@@ -351,7 +353,9 @@ function cancelSubmission(e) {
   } else {
     progress.value = 25;
     completion.value = 1;
-    elementStore.element = false;
+    elementStore.create = false;
+    status.value = 'Active';
+    checkStatus.value = true;
   }
 }
 

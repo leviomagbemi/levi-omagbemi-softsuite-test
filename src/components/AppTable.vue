@@ -47,17 +47,23 @@
             <i v-bind="props" id="action" class="fas fa-ellipsis-h"></i>
           </template>
 
-          <v-list>
-            <v-list-item
-              @click.prevent=""
-              style="cursor: pointer"
-              v-for="(list, index) in lists"
-              :key="index"
-            >
-              <v-list-item-title :style="!list.id ? { color: '#2d416f' } : { color: '#e05453' }"
-                ><i :class="list.icon"></i> {{ list.title }}</v-list-item-title
+          <v-list id="actionModal">
+            <v-list-item style="cursor: pointer">
+              <v-list-item-title style="color: var(--primary)"
+                ><i class="fas fa-eye"></i> View Element Links</v-list-item-title
               >
               <hr />
+            </v-list-item>
+            <v-list-item style="cursor: pointer">
+              <v-list-item-title style="color: var(--primary)"
+                ><i class="fas fa-edit"></i> Edit Element Link</v-list-item-title
+              >
+              <hr />
+            </v-list-item>
+            <v-list-item style="cursor: pointer">
+              <v-list-item-title style="color: #e05453"
+                ><i class="fas fa-trash"></i> Delete Element Links</v-list-item-title
+              >
             </v-list-item>
           </v-list>
         </v-menu>
@@ -68,16 +74,14 @@
 
 <script setup>
 import { ref, onBeforeMount } from 'vue';
+import { useElementStore } from '@/stores/element.js';
+
+const elementStore = useElementStore();
 
 const color = '#2d416f';
 const text = '#fff';
 const headers = ref([]);
 const items = ref([]);
-const lists = ref([
-  { title: 'View Element Link', icon: 'fas fa-eye' },
-  { title: 'View Element Link', icon: 'fas fa-edit' },
-  { title: 'View Element Link', icon: 'fas fa-trash', id: 'delete' }
-]);
 
 onBeforeMount(() => {
   headers.value = [
@@ -90,27 +94,7 @@ onBeforeMount(() => {
     { text: 'Action', value: 'action' }
   ];
 
-  items.value = [
-    {
-      name: '13 Month Allowance',
-      category: 'Deduction',
-      classification: 'Pre tax Deduction',
-      status: 'Active',
-      dateTime: '14-02-2022||09:30 AM',
-      modifiedBy: 'Samson Ayonrinde',
-      action: '...',
-      ddd: 'kkkkk'
-    },
-    {
-      name: '13 Month Allowance',
-      category: 'Deduction',
-      classification: 'Pre tax Deduction',
-      status: 'Inactive',
-      dateTime: '14-02-2022||09:30 AM',
-      modifiedBy: 'Samson Ayonrinde',
-      action: '...'
-    }
-  ];
+  items.value = elementStore.elements;
 });
 </script>
 

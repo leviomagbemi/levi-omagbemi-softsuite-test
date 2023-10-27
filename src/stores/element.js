@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 
 export const useElementStore = defineStore('element', {
   state: () => ({
-    element: ref(false)
+    create: ref(false),
+    elements: reactive([])
   }),
 
   actions: {
@@ -34,10 +35,16 @@ export const useElementStore = defineStore('element', {
         })
       });
 
-      const res = await data.json();
-      console.log(res);
+      await data.json();
 
-      this.element = false;
+      this.elements.push({
+        ...values,
+        dateTime: `${new Date().toLocaleDateString()}||${new Date().toLocaleTimeString()}`,
+        modifiedBy: 'Levi Omagbemi',
+        action: '...',
+        showModal: false
+      });
+      this.create = false;
       completion.value += 1;
     }
   }
